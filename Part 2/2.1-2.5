@@ -41,4 +41,55 @@ CREATE TABLE book (
 
 
 2.2
+SELECT title, name_genre, price
+FROM 
+    book INNER JOIN genre
+    ON book.genre_id = genre.genre_id
+    WHERE amount >8
+    ORDER BY price DESC
+    
+    
+select  name_genre  from book right join genre ON book.genre_id=genre.genre_id
+WHERE book_id is null
+
+
+select name_city, name_author,  DATE_ADD('2020-01-01', INTERVAL FLOOR(RAND() * 365) DAY) as Дата  from city CROSS JOIN author 
+ORDER BY name_city, Дата DESC
+
+
+select name_genre,title,name_author from genre inner join book ON genre.genre_id =book.genre_id INNER JOIN author ON book.author_id=author.author_id 
+WHERE name_genre LIKE "роман"
+ORDER BY title
+
+
+
+select name_author, SUM(amount) AS Количество from book AS b RIGHT JOIN author AS a ON b.author_id =a.author_id GROUP BY name_author
+HAVING Количество <10 OR Количество IS NULL
+ORDER BY Количество; 
+
+
+select DISTINCT name_author /*,  count(DISTINCT genre_id) */ 
+from book AS b  JOIN author AS a ON b.author_id =a.author_id
+GROUP BY name_author
+HAVING count(DISTINCT genre_id)=1
+
+
+SELECT title, name_author, name_genre, price, amount
+FROM 
+    author 
+    INNER JOIN book ON author.author_id = book.author_id
+    INNER JOIN genre ON  book.genre_id = genre.genre_id
+WHERE genre.genre_id in 
+        (select genre_id
+        from book
+        group by genre_id
+        having  sum(amount) = (
+            select sum(amount) as sum_amount
+            from book
+            group by genre_id
+            having sum_amount
+            limit 1))
+ORDER BY title
+
+
 
