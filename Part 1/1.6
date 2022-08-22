@@ -1,0 +1,27 @@
+1.6
+
+select name, city, per_diem, date_first, date_last from trip WHERE name LIKE "%а %%" ORDER BY date_last DESC
+
+
+select DISTINCT name from trip WHERE city LIKE "Москва" ORDER BY name
+
+
+select city,count(name) as Количество from trip group by city ORDER BY city
+
+
+select city, count(city)  as Количество from trip GROUP BY city ORDER BY Количество DESC LIMIT 2
+
+
+select name, city, datediff(date_last, date_first)+1 as Длительность
+from trip 
+WHERE city NOT IN ('Москва', 'Санкт-Петербург')
+ORDER BY Длительность DESC, city DESC;
+
+
+select name, city, date_first, date_last from trip 
+WHERE datediff(date_last, date_first) = (select MIN(date_last-date_first) from trip)
+
+
+select name, city, date_first , (DATEDIFF(date_last, date_first) +1)*per_diem AS Сумма from trip 
+WHERE MONTHNAME(date_first) ='March' OR  MONTHNAME(date_first) ='February'
+ORDER BY name, Сумма DESC
