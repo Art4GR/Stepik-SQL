@@ -1,0 +1,65 @@
+1.7
+
+CREATE table fine
+(fine_id int auto_increment PRIMARY KEY,
+name varchar(30),
+ number_plate  varchar(6),
+ violation varchar(50),
+sum_fine decimal(8,2),
+ date_violation Date,
+ date_payment Date
+);
+select * from fine
+
+
+INSERT INTO fine(name, number_plate, violation, sum_fine, date_violation, date_payment)
+VALUES
+('Баранов П.Е.', 'Р523ВТ', 'Превышение скорости(от 40 до 60)', null, '2020-02-14', null),
+('Абрамова К.А.', 'О111АВ', 'Проезд на запрещающий сигнал', null, '2020-02-23', null),
+('Яковлев Г.Р.', 'Т330ТТ', 'Проезд на запрещающий сигнал', null, '2020-03-03', null);
+select * from fine
+
+
+UPDATE fine, traffic_violation
+SET fine.sum_fine = traffic_violation.sum_fine
+WHERE fine.violation = traffic_violation.violation AND fine.sum_fine IS NULL;
+SELECT * FROM fine;
+
+
+select name, number_plate, violation from fine
+GROUP BY name, number_plate, violation 
+HAVING count(violation)>1
+ORDER BY name, number_plate,  violation 
+
+
+
+create table  NewTable AS  /* создаем временную таблицу NewTable, содерж. выборку с предыдущего урока */
+(
+    select name, number_plate, violation from fine 
+GROUP BY name, number_plate, violation 
+HAVING count(violation)>1
+ORDER BY name, number_plate, violation
+); 
+UPDATE fine, NewTable 
+SET sum_fine=sum_fine*2 /* увеличиваем в 2 раза оплату штрафов */
+WHERE 
+fine.name=NewTable.name AND fine.number_plate=NewTable.number_plate AND  fine.violation=NewTable.violation
+/*условия соответсвия строк (имя, номер авто и превышение) нашей временной таблицы "NewTable" и таблицы "fine", для которой мы делаем штрафы х2 */
+AND fine.date_payment IS NULL; /* эта колонка отсутсвует в нашей NewTable */
+select * from fine;
+
+
+
+UPDATE fine, payment
+SET fine.date_payment = payment.date_payment,
+sum_fine= IF(DATEDIFF(payment.date_payment, fine.date_violation) < 21,sum_fine*0.5, sum_fine) 
+WHERE payment.name=fine.name AND payment.number_plate=fine.number_plate AND fine.date_payment IS NULL;
+SELECT * from fine;
+
+
+
+create table back_payment AS
+select name, number_plate, violation,sum_fine,date_violation from fine WHERE date_payment IS NULL;
+select * from back_payment;
+
+
