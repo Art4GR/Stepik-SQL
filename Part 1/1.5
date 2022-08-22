@@ -1,0 +1,57 @@
+1.5
+////////////////////////////////
+
+create table supply (
+supply_id INT PRIMARY KEY AUTO_INCREMENT,
+title varchar(50),
+author varchar(30),
+price DECIMAL(8,2),
+amount int
+);
+
+
+INSERT INTO supply ( title, author, price, amount)
+VALUES
+( 'Лирика', 'Пастернак Б.Л.', 518.99,	2),
+('Черный человек', 'Есенин С.А.', 570.20, 6),
+    ('Белая гвардия', 'Булгаков М.А.', 540.50, 7),
+    ('Идиот', 'Достоевский Ф.М.', 360.80, 3);
+    
+    
+INSERT INTO book ( title, author, price, amount)
+select title, author, price, amount  from supply WHERE author  NOT IN ('Булгаков М.А.', 'Достоевский Ф.М.');
+select * from book
+
+
+INSERT INTO book (title, author, price, amount) 
+SELECT title, author, price, amount 
+FROM supply WHERE author NOT IN (select author from book);
+select * from book
+
+
+UPDATE book
+set price=price*0.9 WHERE amount BETWEEN 5 and 10
+
+
+UPDATE book
+SET buy =amount WHERE buy > amount; 
+UPDATE book
+SET price = price*0.9 WHERE buy = 0;
+select * from book
+
+
+UPDATE book, supply
+SET book.amount = book.amount + supply.amount,
+book.price = 0.5*(book.price + supply.price)
+WHERE book.title= supply.title AND book.author = supply.author;
+SELECT * FROM book;
+
+
+DELETE FROM supply 
+WHERE author IN(
+     SELECT author
+     FROM book
+     GROUP BY author
+     HAVING SUM(amount) > 10
+     );
+SELECT * FROM supply;
