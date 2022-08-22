@@ -91,5 +91,68 @@ WHERE genre.genre_id in
             limit 1))
 ORDER BY title
 
+2.3
+
+UPDATE book AS b JOIN author ON b.author_id=author.author_id 
+JOIN supply AS s ON b.title=s.title
+SET b.amount=b.amount + s.amount,
+b.price =(b.price * b.amount + s.price * s.amount)/(b.amount + s.amount),
+s.amount = 0
+WHERE s.price != b.price AND author.name_author=s.author;
+SELECT * FROM book;
+SELECT * FROM supply;
 
 
+
+/*select *  from author AS a RIGHT JOIN  supply AS s ON a.name_author=s.author;
+*/INSERT INTO author (author_id , name_author )
+
+select  supply_id, author  from author AS a RIGHT JOIN  supply AS s ON a.name_author=s.author
+WHERE name_author IS NULL;
+select * from author
+
+
+INSERT INTO book ( title ,author_id ,price, amount )
+SELECT title, author_id, price, amount
+FROM 
+    author 
+    INNER JOIN supply ON author.name_author = supply.author
+WHERE amount <> 0;
+select * from book
+
+
+UPDATE book 
+SET genre_id= (select genre_id from genre WHERE genre_id=2)
+WHERE book_id=10;
+UPDATE book 
+SET genre_id= (select genre_id from genre WHERE genre_id=3)
+WHERE book_id=11;
+select * from book
+
+
+DELETE FROM author
+WHERE author_id IN( 
+            SELECT author_id 
+            FROM book
+            GROUP BY author_id
+            HAVING SUM(amount) <= 20
+            );
+SELECT * FROM author;
+SELECT * FROM book;
+
+
+DELETE FROM genre
+WHERE genre_id IN (select genre_id  from book GROUP BY genre_id HAVING COUNT(genre_id)<4);
+SELECT * FROM genre;
+SELECT * FROM book;
+
+
+
+DELETE FROM author
+USING 
+     author 
+     INNER JOIN book ON author.author_id = book.author_id
+     INNER JOIN genre ON genre.genre_id = book.genre_id     
+WHERE name_genre = 'Поэзия';
+SELECT * FROM author;
+SELECT * FROM book;
