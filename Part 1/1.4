@@ -1,0 +1,40 @@
+1.4
+//////////////////////////////////
+
+Select author, title, price from book
+WHERE price <= (select AVG(price) from book)
+Order BY price DESC
+
+//////////////////////////////////
+SELECT  author, title, price 
+FROM book
+WHERE price - (SELECT MIN(price) FROM book) <= 150
+ORDER BY price
+
+
+//////////////////////////////////
+select DISTINCT author, title, amount 
+from book
+WHERE amount IN (select amount from book Group by amount Having count(amount)=1) 
+
+
+//////////////////////////////////
+SELECT author, title, price
+FROM book
+WHERE price < ANY (
+        SELECT Min(price) 
+        FROM book 
+        GROUP BY author 
+      );
+      
+//////////////////////////////////      
+SELECT title, author, amount,
+(SELECT ABS(amount - (SELECT MAX(amount) FROM book ))) AS Заказ
+FROM book
+WHERE amount < (SELECT MAX(amount) FROM book);
+
+Select author, title, price from book
+WHERE price <= (select AVG(price) from book)
+Order BY price DESC
+
+
