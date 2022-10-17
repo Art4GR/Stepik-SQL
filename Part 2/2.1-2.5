@@ -156,3 +156,115 @@ USING
 WHERE name_genre = 'Поэзия';
 SELECT * FROM author;
 SELECT * FROM book;
+
+
+2.4
+
+
+select buy.buy_id, title, price, bb.amount from client AS c JOIN buy ON c.client_id=buy.client_id JOIN buy_book AS bb ON buy.buy_id=bb.buy_id
+JOIN book ON bb.book_id=book.book_id
+WHERE name_client = 'Баранов Павел'
+ORDER BY buy.buy_id, title
+
+select name_author, title, COUNT(bb.amount) AS Количество  from book AS b LEFT JOIN buy_book AS bb ON b.book_id=bb.book_id JOIN author AS a ON b.author_id=a.author_id
+GROUP BY b.title, name_author
+ORDER BY name_author, title;
+
+SELECT name_city, COUNT(buy_id) AS Количество FROM 
+city
+inner join client ON city.city_id = client.city_id
+inner join buy ON client.client_id = buy.client_id
+group by  name_city 
+ORDER BY name_city;
+
+select buy_id , date_step_end from step JOIN buy_step ON step.step_id=buy_step.step_id WHERE buy_step.step_id=1 AND buy_step.date_step_end IS NOT NULL
+
+select   buy_book.buy_id, name_client, SUM(book.price * buy_book.amount) AS Стоимость from
+client 
+JOIN buy ON client.client_id =buy.client_id 
+JoiN buy_book ON buy.buy_id=buy_book.buy_id
+JOIN book ON book.book_id=buy_book.book_id 
+GROUP BY  buy_book.buy_id
+ORDER BY buy_book.buy_id;
+
+
+select  DISTINCT buy_id, name_step from 
+step
+JOIN buy_step ON step.step_id=buy_step.step_id 
+WHERE  date_step_beg IS NOT NULL AND date_step_end IS NULL
+
+SELECT buy_id,
+DATEDIFF(date_step_end,date_step_beg) AS Количество_дней,
+IF
+(DATEDIFF(date_step_end,date_step_beg) > days_delivery, 
+ DATEDIFF(date_step_end,date_step_beg) - days_delivery,
+ 0) AS Опоздание
+FROM buy_step INNER JOIN step USING (step_id)
+              INNER JOIN buy USING (buy_id)
+              INNER JOIN client USING (client_id)
+              INNER JOIN city USING (city_id)
+where buy_step.step_id = 3 AND date_step_end IS NOT NULL
+ORDER BY buy_id;
+
+
+select DISTINCT   name_client from    buy
+INNER JOIN client USING (client_id)
+              INNER JOIN buy_book USING (buy_id)
+               INNER JOIN book USING (book_id)
+               
+               WHERE author_id=2
+ORDER BY name_client
+
+select name_genre, SUM(buy_book.amount)  AS Количество 
+from genre 
+JOIN book USING (genre_id)
+JOIN buy_book USING (book_id)
+GROUP BY name_genre
+
+HAVING Количество = (SELECT MAX(Количество ) from 
+(SELECT SUM(buy_book.amount) AS Количество 
+ from genre 
+JOIN book USING (genre_id)
+JOIN buy_book USING (book_id)
+GROUP BY genre.name_genre) q) ;
+
+SELECT YEAR(date_payment) AS Год, MONTHNAME(date_payment)AS Месяц, SUM(price*amount) AS Сумма
+FROM buy_archive
+GROUP BY Год, Месяц
+
+UNION ALL
+
+SELECT YEAR(date_step_end) AS Год, MONTHNAME(date_step_end)AS Месяц,  SUM(price * buy_book.amount) AS Сумма
+FROM buy_step
+    INNER JOIN buy_book USING(buy_id)
+    INNER JOIN book USING(book_id)
+WHERE date_step_end IS NOT NULL AND step_id = 1
+GROUP BY Год, Месяц
+ORDER BY Месяц ASC, Год ASC;
+
+SELECT title, SUM(quantity) AS Количество, SUM(summa) AS Сумма
+FROM
+    (
+    SELECT book.title, 
+           SUM(buy_archive.amount) AS quantity, 
+           SUM(buy_archive.amount * buy_archive.price) AS summa
+    FROM buy_archive
+         INNER JOIN book USING (book_id)
+    GROUP BY book.title
+
+    UNION ALL
+    SELECT book.title,
+           SUM(buy_book.amount) AS quantity,
+           SUM(buy_book.amount * book.price) AS summa
+    FROM 
+        step
+        INNER JOIN buy_step USING (step_id)
+        INNER JOIN buy_book USING (buy_id)
+        INNER JOIN book USING (book_id)
+    WHERE step.name_step = 'Оплата' AND date_step_end is not null
+    GROUP BY book.title
+    ORDER BY summa DESC
+    ) query_in
+
+GROUP BY title
+ORDER BY Сумма DESC; 
