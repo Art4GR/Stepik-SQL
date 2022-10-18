@@ -1,0 +1,43 @@
+3.2.1===========================================================================================
+Insert INTO attempt  (student_id , subject_id, date_attempt, result)
+VALUES (
+    (select student_id from student where name_student = 'Баранов Павел') , 
+        2, 
+        NOW(),
+       NULL
+) ;
+select * from attempt
+
+3.2.2===========================================================================================
+insert into testing(attempt_id, question_id)
+        select attempt_id, question_id
+        from question
+        join attempt using(subject_id)
+        where attempt_id = 
+                                    (
+                                        select max(attempt_id)                            
+                                        from attempt
+                                    )
+        order by rand()
+        limit 3
+        
+3.2.3===========================================================================================
+UPDATE attempt
+    SET result = (SELECT ROUND(SUM(is_correct)/3*100, 0)
+        FROM answer INNER JOIN testing ON answer.answer_id = testing.answer_id
+        WHERE attempt_id = 8)
+    WHERE attempt_id = 8;
+    select * from attempt
+    
+3.2.4===========================================================================================
+delete from attempt 
+WHERE date_attempt < '2020-05-01';
+select * from attempt
+
+3.2.5===========================================================================================
+UPDATE attempt
+    SET result = (SELECT ROUND(SUM(is_correct)/3*100, 0)
+        FROM answer INNER JOIN testing ON answer.answer_id = testing.answer_id
+        WHERE attempt_id = 8)
+    WHERE attempt_id = 8;
+    select * from attempt
