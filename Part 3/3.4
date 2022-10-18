@@ -1,0 +1,58 @@
+3.4.1======================================================================================
+create table applicant 
+select program_id, enrollee.enrollee_id ,SUM(result) AS itog 
+FROM enrollee
+ JOIN program_enrollee USING(enrollee_id)
+ JOIN program USING(program_id)
+ JOIN program_subject USING(program_id)
+ JOIN subject USING(subject_id)
+JOIN enrollee_subject ON subject.subject_id = enrollee_subject.subject_id 
+and enrollee_subject.enrollee_id = enrollee.enrollee_id
+GROUP BY program_id, enrollee_id
+ORDER BY program_id, itog DESC;
+select *  from applicant ;
+
+3.4.2======================================================================================
+delete from applicant USING applicant
+inner join program_subject using(program_id)
+inner join enrollee_subject using(subject_id,enrollee_id)
+ WHERE result < min_result;
+  select * from applicant;
+  
+3.4.3======================================================================================
+UPDATE applicant, (SELECT enrollee.enrollee_id, COALESCE(SUM(bonus),0) AS bonus2
+         FROM enrollee
+         LEFT JOIN enrollee_achievement ON enrollee.enrollee_id=enrollee_achievement.enrollee_id
+         LEFT JOIN achievement ON enrollee_achievement.achievement_id=achievement.achievement_id        
+GROUP BY enrollee.enrollee_id) AS t1 
+SET itog = itog + (t1.bonus2)
+WHERE t1.enrollee_id=applicant.enrollee_id;
+
+SELECT * FROM applicant;
+
+3.4.4======================================================================================
+create table applicant_order 
+select * from applicant
+ORDER BY program_id , itog DESC;
+DROP TABLE applicant;
+select * from applicant_order
+
+3.4.5======================================================================================
+ALTER TABLE applicant_order ADD str_id int FIRST;
+select * from applicant_order
+
+3.4.6======================================================================================
+ALTER TABLE applicant_order DROP str_id;
+SELECT
+row_number() OVER (PARTITION BY program_id) AS str_id,
+program_id, enrollee_id, itog
+FROM applicant_order;
+
+3.4.7======================================================================================
+create table student
+select name_program, name_enrollee,itog  from enrollee
+JOIN applicant_order USING (enrollee_id)
+JOIN program USING (program_id)
+WHERE str_id <= plan
+ORDER BY name_program , itog DESC;
+select * from student
