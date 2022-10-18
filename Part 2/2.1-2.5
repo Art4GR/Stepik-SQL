@@ -1,10 +1,10 @@
-2.1==========================================================================================
-
+=========================================2.1==========================================================================================
+2.1.1==================================================================================
 create table author 
 (author_id INT PRIMARY KEY AUTO_INCREMENT ,
 name_author VARCHAR(50))
 
-
+2.1.2==================================================================================
 insert into author (name_author  )
 VALUES
 ('Булгаков М.А.'),
@@ -14,7 +14,7 @@ VALUES
 ;
 Select * from author
 
-
+2.1.3==================================================================================
 CREATE TABLE book (
     book_id INT PRIMARY KEY AUTO_INCREMENT, 
     title VARCHAR(50), 
@@ -27,7 +27,7 @@ CREATE TABLE book (
 );
 
 
-
+2.1.4==================================================================================
 CREATE TABLE book (
     book_id INT PRIMARY KEY AUTO_INCREMENT, 
     title VARCHAR(50), 
@@ -40,7 +40,7 @@ CREATE TABLE book (
 );
 
 
-2.2==========================================================================================
+=========================================2.2==========================================================================================
 SELECT title, name_genre, price
 FROM 
     book INNER JOIN genre
@@ -91,8 +91,8 @@ WHERE genre.genre_id in
             limit 1))
 ORDER BY title
 
-2.3==========================================================================================
-
+=========================================2.3==========================================================================================
+2.3.1==================================================================================
 UPDATE book AS b JOIN author ON b.author_id=author.author_id 
 JOIN supply AS s ON b.title=s.title
 SET b.amount=b.amount + s.amount,
@@ -103,7 +103,7 @@ SELECT * FROM book;
 SELECT * FROM supply;
 
 
-
+2.3.1==================================================================================
 /*select *  from author AS a RIGHT JOIN  supply AS s ON a.name_author=s.author;
 */INSERT INTO author (author_id , name_author )
 
@@ -111,7 +111,7 @@ select  supply_id, author  from author AS a RIGHT JOIN  supply AS s ON a.name_au
 WHERE name_author IS NULL;
 select * from author
 
-
+2.3.2==================================================================================
 INSERT INTO book ( title ,author_id ,price, amount )
 SELECT title, author_id, price, amount
 FROM 
@@ -120,7 +120,7 @@ FROM
 WHERE amount <> 0;
 select * from book
 
-
+2.3.3==================================================================================
 UPDATE book 
 SET genre_id= (select genre_id from genre WHERE genre_id=2)
 WHERE book_id=10;
@@ -129,7 +129,7 @@ SET genre_id= (select genre_id from genre WHERE genre_id=3)
 WHERE book_id=11;
 select * from book
 
-
+2.3.4==================================================================================
 DELETE FROM author
 WHERE author_id IN( 
             SELECT author_id 
@@ -140,14 +140,14 @@ WHERE author_id IN(
 SELECT * FROM author;
 SELECT * FROM book;
 
-
+2.3.5==================================================================================
 DELETE FROM genre
 WHERE genre_id IN (select genre_id  from book GROUP BY genre_id HAVING COUNT(genre_id)<4);
 SELECT * FROM genre;
 SELECT * FROM book;
 
 
-
+2.3.6==================================================================================
 DELETE FROM author
 USING 
      author 
@@ -158,18 +158,20 @@ SELECT * FROM author;
 SELECT * FROM book;
 
 
-2.4==========================================================================================
+=========================================2.4==========================================================================================
 
-
+2.4.1========================================================================================
 select buy.buy_id, title, price, bb.amount from client AS c JOIN buy ON c.client_id=buy.client_id JOIN buy_book AS bb ON buy.buy_id=bb.buy_id
 JOIN book ON bb.book_id=book.book_id
 WHERE name_client = 'Баранов Павел'
 ORDER BY buy.buy_id, title
 
+2.4.2========================================================================================
 select name_author, title, COUNT(bb.amount) AS Количество  from book AS b LEFT JOIN buy_book AS bb ON b.book_id=bb.book_id JOIN author AS a ON b.author_id=a.author_id
 GROUP BY b.title, name_author
 ORDER BY name_author, title;
 
+2.4.3========================================================================================
 SELECT name_city, COUNT(buy_id) AS Количество FROM 
 city
 inner join client ON city.city_id = client.city_id
@@ -177,8 +179,10 @@ inner join buy ON client.client_id = buy.client_id
 group by  name_city 
 ORDER BY name_city;
 
+2.4.4========================================================================================
 select buy_id , date_step_end from step JOIN buy_step ON step.step_id=buy_step.step_id WHERE buy_step.step_id=1 AND buy_step.date_step_end IS NOT NULL
 
+2.4.5========================================================================================
 select   buy_book.buy_id, name_client, SUM(book.price * buy_book.amount) AS Стоимость from
 client 
 JOIN buy ON client.client_id =buy.client_id 
@@ -187,12 +191,13 @@ JOIN book ON book.book_id=buy_book.book_id
 GROUP BY  buy_book.buy_id
 ORDER BY buy_book.buy_id;
 
-
+2.4.6========================================================================================
 select  DISTINCT buy_id, name_step from 
 step
 JOIN buy_step ON step.step_id=buy_step.step_id 
 WHERE  date_step_beg IS NOT NULL AND date_step_end IS NULL
 
+2.4.7========================================================================================
 SELECT buy_id,
 DATEDIFF(date_step_end,date_step_beg) AS Количество_дней,
 IF
@@ -206,7 +211,7 @@ FROM buy_step INNER JOIN step USING (step_id)
 where buy_step.step_id = 3 AND date_step_end IS NOT NULL
 ORDER BY buy_id;
 
-
+2.4.8========================================================================================
 select DISTINCT   name_client from    buy
 INNER JOIN client USING (client_id)
               INNER JOIN buy_book USING (buy_id)
@@ -215,12 +220,12 @@ INNER JOIN client USING (client_id)
                WHERE author_id=2
 ORDER BY name_client
 
+2.4.9========================================================================================
 select name_genre, SUM(buy_book.amount)  AS Количество 
 from genre 
 JOIN book USING (genre_id)
 JOIN buy_book USING (book_id)
 GROUP BY name_genre
-
 HAVING Количество = (SELECT MAX(Количество ) from 
 (SELECT SUM(buy_book.amount) AS Количество 
  from genre 
@@ -228,12 +233,13 @@ JOIN book USING (genre_id)
 JOIN buy_book USING (book_id)
 GROUP BY genre.name_genre) q) ;
 
+2.4.10========================================================================================
 SELECT YEAR(date_payment) AS Год, MONTHNAME(date_payment)AS Месяц, SUM(price*amount) AS Сумма
 FROM buy_archive
 GROUP BY Год, Месяц
-
 UNION ALL
 
+2.4.11========================================================================================
 SELECT YEAR(date_step_end) AS Год, MONTHNAME(date_step_end)AS Месяц,  SUM(price * buy_book.amount) AS Сумма
 FROM buy_step
     INNER JOIN buy_book USING(buy_id)
@@ -242,6 +248,7 @@ WHERE date_step_end IS NOT NULL AND step_id = 1
 GROUP BY Год, Месяц
 ORDER BY Месяц ASC, Год ASC;
 
+2.4.12========================================================================================
 SELECT title, SUM(quantity) AS Количество, SUM(summa) AS Сумма
 FROM
     (
@@ -270,41 +277,48 @@ GROUP BY title
 ORDER BY Сумма DESC; 
 
 
-2.5==========================================================================================
+=========================================2.5==========================================================================================
+2.5.1========================================================================================
 INSERT into buy ( buy_description, client_id)
 select 'Связаться со мной по вопросу доставки' ,( select client_id  from client
 WHERE name_client='Попов Илья');
 select * from buy
 
+2.5.2========================================================================================
 insert into buy_book (buy_id, book_id, amount)
 VALUES(5, 8, 2);
 insert into buy_book (buy_id, book_id, amount)
 VALUES(5, 2, 1);
 select * from buy_book
 
+2.5.3========================================================================================
 update book JOIN buy_book using (book_id)
 SET book.amount = book.amount -buy_book.amount
 WHERE buy_id=5;
 select * from book
 
+2.5.4========================================================================================
 CREATE  table buy_pay AS
 select title,name_author,price,buy_book.amount,price*buy_book.amount AS Стоимость  from book JOIN author USING (author_id) JOIN buy_book USING (book_id)
 WHERE buy_id = 5
 ORDER BY Стоимость ;
 select * from buy_pay
 
+2.5.5========================================================================================
 CREATE  table buy_pay AS
 select buy_id, SUM(buy_book.amount) AS Количество, SUM(price*buy_book.amount) AS Итого  from book JOIN author USING (author_id) JOIN buy_book USING (book_id)
 WHERE buy_id = 5
 GROUP BY buy_id;
 select * from buy_pay
 
+2.5.6========================================================================================
 INSERT INTO buy_step (buy_id, step_id)
      SELECT buy_id, step_id
        FROM buy CROSS JOIN step
       WHERE buy_id = 5; 
 SELECT * FROM buy_step; 
 
+2.5.7========================================================================================
 UPDATE buy_step
 SET date_step_beg='2020-04-12'
 WHERE buy_id=5 and step_id=1;
