@@ -1,0 +1,76 @@
+3.3.1
+select name_enrollee from enrollee JOIN program_enrollee USING (enrollee_id) WHERE program_id = 4
+ORDER BY name_enrollee  
+
+3.3.2
+select name_program  from program JOIN program_subject USING (program_id) WHERE subject_id=4
+ORDER BY name_program DESC
+
+3.3.3
+select name_subject, COUNT(enrollee_id ) AS Количество , MAX(result) AS Максимум ,MIN(result) AS Минимум , ROUND(AVG(result),1) AS Среднее  
+from 
+subject  JOIN enrollee_subject USING (subject_id)
+GROUP BY name_subject 
+ORDER BY name_subject
+
+3.3.4
+select  name_program from (
+select name_program, MIN(min_result )  AS MIN from program JOIN program_subject USING(program_id ) 
+  GROUP BY name_program
+) as q WHERE MIN >=40
+ORDER BY name_program
+
+3.3.5
+select  name_program, plan  from program 
+WHERE plan = (select MAX(plan) from program )
+
+3.3.6
+select  name_enrollee,  SUM(IF(bonus IS NULL, 0, bonus))   AS  Бонус from
+enrollee LEFT JOIN enrollee_achievement USING (enrollee_id) 
+LEFT JOIN achievement USING (achievement_id )
+GROUP BY name_enrollee
+ORDER BY name_enrollee
+
+3.3.7
+SELECT name_department, name_program, plan, Количество, ROUND(Количество/plan, 2) AS Конкурс
+FROM department
+    INNER JOIN program USING(department_id)
+    INNER JOIN
+            (SELECT program_id, COUNT(enrollee_id) AS Количество
+            FROM  program_enrollee
+            GROUP BY program_id) AS temp 
+            USING(program_id)
+ORDER BY Конкурс DESC
+
+3.3.8
+select name_program
+from     subject
+join program_subject using (subject_id)
+join program using (program_id)
+where name_subject in ('Математика','Информатика')
+group by name_program
+having count(*) = 2
+order by name_program
+
+3.3.9
+select name_program ,name_enrollee,SUM(result) AS itog FROM enrollee
+ JOIN program_enrollee USING(enrollee_id)
+ JOIN program USING(program_id)
+ JOIN program_subject USING(program_id)
+ JOIN subject USING(subject_id)
+JOIN enrollee_subject ON subject.subject_id = enrollee_subject.subject_id 
+and enrollee_subject.enrollee_id = enrollee.enrollee_id
+GROUP BY name_enrollee, name_program
+ORDER BY name_program, itog DESC
+
+3.3.10
+select name_program ,name_enrollee  FROM enrollee
+ JOIN program_enrollee USING(enrollee_id)
+ JOIN program USING(program_id)
+ JOIN program_subject USING(program_id)
+ JOIN subject USING(subject_id)
+JOIN enrollee_subject ON subject.subject_id = enrollee_subject.subject_id 
+and enrollee_subject.enrollee_id = enrollee.enrollee_id
+WHERE   result  < min_result 
+GROUP BY name_enrollee, name_program
+ORDER BY name_program ,name_enrollee
