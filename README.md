@@ -1,2 +1,2 @@
 # Stepik-SQL
-Answers for "Интерактивный тренажер по SQL" course
+Answers to "Интерактивный тренажер по SQL" course
