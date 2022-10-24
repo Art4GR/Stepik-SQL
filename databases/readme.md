@@ -1,1 +1,1 @@
-### Contains databases
+### Contains database with scripts
